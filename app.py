@@ -16,6 +16,8 @@ class Player_stats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column("player_id", db.Integer())
     name = db.Column("name", db.String())
+    code = db.Column("code", db.Integer())
+    position = db.Column("position", db.String())
     goals = db.Column("goals", db.Integer())
     assists = db.Column("assists", db.Integer())
     clean_sheets = db.Column("clean_sheets", db.Integer())
@@ -45,9 +47,11 @@ class Player_stats(db.Model):
     takes_free_kicks = db.Column("takes_free_kicks", db.Integer())
     takes_penalties = db.Column("takes_penalties", db.Integer())
 
-    def __init__(self, player_id, name, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties ):
+    def __init__(self, player_id, name, code, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties ):
         self.player_id = player_id
         self.name = name
+        self.code = code
+        self.position = position
         self.goals = goals
         self.assists = assists
         self.clean_sheets = clean_sheets
@@ -90,6 +94,15 @@ def fetch_all_stats():
 
         player_id = p["id"]
         name = p["first_name"] + " " + p["second_name"]
+        code = p["code"]
+        if p["element_type"] == 3:
+            position = "ATK"
+        elif p["element_type"] == 2:
+            position = "MID"
+        elif p["element_type"] == 1 and p["saves"] != 0:
+            position = "GK"
+        else:
+            position = "DEF"
         goals = p["goals_scored"]
         assists = p["assists"]
         clean_sheets = p["clean_sheets"]
@@ -119,14 +132,14 @@ def fetch_all_stats():
         takes_free_kicks = p["direct_freekicks_order"] 
         takes_penalties = p["penalties_order"]
 
-        player = Player_stats(player_id, name, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
+        player = Player_stats(player_id, name, code, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
 
         db.session.add(player)
         db.session.commit()
 
 with app.app_context():
     db.create_all()
-    # fetch_all_stats()
+    fetch_all_stats()
 
 @app.route('/')
 def hello():

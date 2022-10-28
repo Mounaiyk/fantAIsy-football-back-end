@@ -132,7 +132,7 @@ with app.app_context():
 def hello():
     return render_template("home.html")
 
-@app.route('/stats')
+@app.route('/allstats')
 def get_all_stats():
     data = Player_stats.query.all()
     list =[]
@@ -141,6 +141,14 @@ def get_all_stats():
         list.append(p.__dict__)
     return jsonify(list)
 
+@app.route('/stats/<str>')
+def get_player_stats(str):
+    data = Player_stats.query.filter_by(name = str)
+    list =[]
+    for p in data:
+        del p.__dict__["_sa_instance_state"]
+        list.append(p.__dict__)
+    return jsonify(list)
 
 if __name__ == "__main__":
     app.run(debug=True)

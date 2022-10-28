@@ -9,6 +9,7 @@ werkzeug = "*"
 flask-cors = "*"
 waitress = "*"
 requests = "*"
+flask-sqlalchemy = "*"
 
 [dev-packages]
 

@@ -150,5 +150,15 @@ def get_player_stats(str):
         list.append(p.__dict__)
     return jsonify(list)
 
+@app.route('/teams/<str>')
+def get_players_by_team(str):
+    data = Player_stats.query.filter_by(team = str)
+    list =[]
+    for p in data:
+        del p.__dict__["_sa_instance_state"]
+        list.append(p.__dict__)
+    return jsonify(list)
+
+
 if __name__ == "__main__":
     app.run(debug=True)

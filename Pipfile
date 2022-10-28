@@ -8,6 +8,7 @@ flask = "*"
 werkzeug = "*"
 flask-cors = "*"
 waitress = "*"
+requests = "*"
 
 [dev-packages]
 

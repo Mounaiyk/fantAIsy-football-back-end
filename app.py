@@ -139,7 +139,7 @@ def fetch_all_stats():
 
 with app.app_context():
     db.create_all()
-    fetch_all_stats()
+    # fetch_all_stats()
 
 @app.route('/')
 def hello():

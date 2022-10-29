@@ -95,14 +95,14 @@ def fetch_all_stats():
         player_id = p["id"]
         name = p["first_name"] + " " + p["second_name"]
         code = p["code"]
-        if p["element_type"] == 3:
+        if p["element_type"] == 4:
             position = "ATK"
-        elif p["element_type"] == 2:
+        elif p["element_type"] == 3:
             position = "MID"
-        elif p["element_type"] == 1 and p["saves"] != 0:
-            position = "GK"
-        else:
+        elif p["element_type"] == 2:
             position = "DEF"
+        else:
+            position = "GK"
         goals = p["goals_scored"]
         assists = p["assists"]
         clean_sheets = p["clean_sheets"]

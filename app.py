@@ -90,7 +90,7 @@ def fetch_all_stats():
     data = resp.json()
     for p in data["elements"]:
     
-        teams =["Arsenal", "Aston Villa FC","Bournemouth AFC","Brentford", "Brighton & Hove Albion", "Chelsea", "Crystal Palace", "Everton FC", "Fulham", "Leicester City FC", "Leeds United", "Liverpool FC", "Manchester City FC", "Manchester United FC", "Newcastle United", "Nottingham Forest", "Southampton FC","Tottenham Hotspur FC","West Ham United","Wolverhampton Wanderers"   ]
+        teams =["Arsenal F.C.", "Aston Villa F.C."," A.F.C. Bournemouth","Brentford F.C.", "Brighton & Hove Albion F.C.", "Chelsea F.C.", "Crystal Palace F.C.", "Everton F.C.", "Fulham F.C.", "Leicester City F.C.", "Leeds United", "Liverpool F.C.", "Manchester City F.C.", "Manchester United F.C.", "Newcastle United F.C.", "Nottingham Forest F.C.", "Southampton F.C.","Tottenham Hotspur F.C.","West Ham United F.C.","Wolverhampton Wanderers F.C."   ]
 
         player_id = p["id"]
         name = p["first_name"] + " " + p["second_name"]

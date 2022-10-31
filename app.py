@@ -4,6 +4,9 @@ from werkzeug import exceptions
 import requests
 from flask_sqlalchemy import SQLAlchemy
 import json
+from fpl import FPL
+import aiohttp
+import asyncio
 
 
 app = Flask(__name__)
@@ -180,9 +183,34 @@ def get_players_by_team(str):
         list.append(p.__dict__)
     return jsonify(list)
 
-@app.route('/getuserteam' method=["POST"])
+@app.route('/getuserteam', methods=["POST"])
 def get_user_team():
     data = request.get_json(force=True)
+    async def my_team():
+        async with aiohttp.ClientSession() as session:
+            fpl = FPL(session)
+            login_output = await fpl.login(data["email"], data["password"])
+            user = await fpl.get_user(data["userID"])
+            team = await user.get_team()
+        print(team)
+        print(login_output)
+        players = []
+        for player in team:
+            players.append(player["element"])
+        
+
+
+        return players
+    return jsonify(asyncio.run(my_team()))
+
+@app.route('/userplayer/<id>')
+def get_player_info(id):
+    data = Player_stats.query.filter_by(player_id = id)
+    list =[]
+    for p in data:
+        del p.__dict__["_sa_instance_state"]
+        list.append(p.__dict__)
+    return jsonify(list)
 
 
 if __name__ == "__main__":

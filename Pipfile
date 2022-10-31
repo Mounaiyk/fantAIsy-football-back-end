@@ -10,6 +10,9 @@ flask-cors = "*"
 waitress = "*"
 requests = "*"
 flask-sqlalchemy = "*"
+fpl = "*"
+aiohttp = "*"
+asyncio = "*"
 
 [dev-packages]
 

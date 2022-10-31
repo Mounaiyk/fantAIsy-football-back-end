@@ -180,6 +180,10 @@ def get_players_by_team(str):
         list.append(p.__dict__)
     return jsonify(list)
 
+@app.route('/getuserteam' method=["POST"])
+def get_user_team():
+    data = request.get_json(force=True)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

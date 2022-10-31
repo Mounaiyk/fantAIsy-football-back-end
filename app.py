@@ -180,7 +180,7 @@ def get_players_by_team(str):
         list.append(p.__dict__)
     return jsonify(list)
 
-@app.route('/getuserteam', method=["POST"])
+@app.route('/getuserteam', methods=['POST'])
 def get_user_team():
     data = request.get_json(force=True)
     return jsonify("hello")

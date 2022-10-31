@@ -183,6 +183,7 @@ def get_players_by_team(str):
 @app.route('/getuserteam' method=["POST"])
 def get_user_team():
     data = request.get_json(force=True)
+    return jsonify("hello")
 
 
 if __name__ == "__main__":

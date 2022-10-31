@@ -189,18 +189,14 @@ def get_user_team():
     async def my_team():
         async with aiohttp.ClientSession() as session:
             fpl = FPL(session)
-            login_output = await fpl.login(data["email"], data["password"])
+            # login_output = await fpl.login(data["email"], data["password"])
             user = await fpl.get_user(data["userID"])
-            team = await user.get_team()
-        print(team)
-        print(login_output)
+            team = await user.get_picks(data["gameweek"])
         players = []
-        for player in team:
+        for player in team[data["gameweek"]]:
             players.append(player["element"])
-        
-
-
         return players
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     return jsonify(asyncio.run(my_team()))
 
 @app.route('/userplayer/<id>')

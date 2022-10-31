@@ -17,6 +17,7 @@ class Player_stats(db.Model):
     player_id = db.Column("player_id", db.Integer())
     name = db.Column("name", db.String())
     code = db.Column("code", db.Integer())
+    cost = db.Column("cost", db.Float())
     position = db.Column("position", db.String())
     goals = db.Column("goals", db.Integer())
     assists = db.Column("assists", db.Integer())
@@ -47,10 +48,11 @@ class Player_stats(db.Model):
     takes_free_kicks = db.Column("takes_free_kicks", db.Integer())
     takes_penalties = db.Column("takes_penalties", db.Integer())
 
-    def __init__(self, player_id, name, code, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties ):
+    def __init__(self, player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties ):
         self.player_id = player_id
         self.name = name
         self.code = code
+        self.cost = cost
         self.position = position
         self.goals = goals
         self.assists = assists
@@ -89,6 +91,12 @@ def fetch_all_stats():
     resp = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     data = resp.json()
     for p in data["elements"]:
+        response = requests.get(f"https://fantasy.premierleague.com/api/element-summary/{p['id']}/")
+        data = response.json()
+        if len(data["history"]) > 0:
+            cost = float(data["history"][-1]["value"])/10
+        else:
+            cost = 0
     
         teams =["Arsenal F.C.", "Aston Villa F.C."," A.F.C. Bournemouth","Brentford F.C.", "Brighton & Hove Albion F.C.", "Chelsea F.C.", "Crystal Palace F.C.", "Everton F.C.", "Fulham F.C.", "Leicester City F.C.", "Leeds United", "Liverpool F.C.", "Manchester City F.C.", "Manchester United F.C.", "Newcastle United F.C.", "Nottingham Forest F.C.", "Southampton F.C.","Tottenham Hotspur F.C.","West Ham United F.C.","Wolverhampton Wanderers F.C."   ]
 
@@ -132,7 +140,7 @@ def fetch_all_stats():
         takes_free_kicks = p["direct_freekicks_order"] 
         takes_penalties = p["penalties_order"]
 
-        player = Player_stats(player_id, name, code, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
+        player = Player_stats(player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
 
         db.session.add(player)
         db.session.commit()

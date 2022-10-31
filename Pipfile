@@ -13,8 +13,10 @@ flask-sqlalchemy = "*"
 fpl = "*"
 aiohttp = "*"
 asyncio = "*"
+pytest-cov = "*"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.10"

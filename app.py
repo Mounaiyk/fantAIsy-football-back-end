@@ -10,8 +10,7 @@ import asyncio
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///player_stats.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fpl.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
@@ -166,7 +165,7 @@ def fetch_all_stats():
 def sign_up(username, password):
     user = Users(username, password)
     db.session.add(user)
-    db.session.commit
+    db.session.commit()
 
 with app.app_context():
     db.create_all()
@@ -231,7 +230,9 @@ def get_player_info(id):
 @app.route('/signup', methods=['POST'])
 def get_details():
     data = request.get_json(force=True)
-    sign_up(data)
+    sign_up(data["username"], data["password"])
+    details = {"username": data["username"], "password": data["password"]}
+    return details
 
 
 if __name__ == "__main__":

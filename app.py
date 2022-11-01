@@ -8,6 +8,7 @@ import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///player_stats.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
@@ -85,6 +86,20 @@ class Player_stats(db.Model):
 
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column("username", db.String())
+    password = db.Column("password", db.String())
+    user_id = db.Column("user_id", db.Integer())
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.user_id = None
+
+    
+
    
 
 def fetch_all_stats():
@@ -145,6 +160,11 @@ def fetch_all_stats():
         db.session.add(player)
         db.session.commit()
 
+def sign_up(username, password):
+    user = Users(username, password)
+    db.session.add(user)
+    db.session.commit
+
 with app.app_context():
     db.create_all()
     # fetch_all_stats()
@@ -184,6 +204,11 @@ def get_players_by_team(str):
 def get_user_team():
     data = request.get_json(force=True)
     return jsonify("hello")
+
+@app.route('/signup', methods=['POST'])
+def get_details():
+    data = request.get_json(force=True)
+    sign_up(data)
 
 
 if __name__ == "__main__":

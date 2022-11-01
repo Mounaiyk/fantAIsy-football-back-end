@@ -246,15 +246,15 @@ def get_player_info(id):
 
 @app.route('/predictions', methods=["GET", "POST"])
 def predictions():
-    request_data = request.get_json(silent=False, force=True)
     if request.method == "GET":
-        return 200
-    elif request.method == "POST":
-        for players in request_data.data:
-            Player_stats.query.filter_by(player_id=players["id"]).update(
-                predicted_points=players["predicted_points"])
+        return jsonify("200")
+    else: 
+        request_data = request.get_json(force=True)
+        print(request_data["predictions_with_names"])
+        for players in request_data["predictions_with_names"]:
+            Player_stats.query.filter_by(player_id=players["id"]).update(dict(predicted_points=players["predicted_points"]))
             db.session.commit()
-        return 201
+    return jsonify("201")
 
 
 @app.route('/signup', methods=['POST'])
@@ -266,4 +266,4 @@ def get_details():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=3000)

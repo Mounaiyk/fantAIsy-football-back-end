@@ -244,16 +244,12 @@ def get_player_info(id):
     return jsonify(list)
 
 
-@app.route('/predictions', methods=["GET", "POST"])
+@app.route('/predictions', methods=["POST"])
 def predictions():
-    if request.method == "GET":
-        return jsonify("200")
-    else: 
-        request_data = request.get_json(force=True)
-        print(request_data["predictions_with_names"])
-        for players in request_data["predictions_with_names"]:
-            Player_stats.query.filter_by(player_id=players["id"]).update(dict(predicted_points=players["predicted_points"]))
-            db.session.commit()
+    player = json.loads(request.data.decode("utf-8"))
+    Player_stats.query.filter_by(player_id=player["id"]).update(
+        dict(predicted_points=player["predicted_points"]))
+    db.session.commit()
     return jsonify("201")
 
 

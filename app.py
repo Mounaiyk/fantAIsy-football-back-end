@@ -15,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
 
+
 class Player_stats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column("player_id", db.Integer())
@@ -32,8 +33,10 @@ class Player_stats(db.Model):
     total_points = db.Column("total_points", db.Integer())
     transfers_in = db.Column("transfers_in", db.Integer())
     transfers_out = db.Column("transfers_out", db.Integer())
-    transfers_in_this_round = db.Column("transfers_in_this_round", db.Integer())
-    transfers_out_this_round = db.Column("transfers_out_this_round", db.Integer())
+    transfers_in_this_round = db.Column(
+        "transfers_in_this_round", db.Integer())
+    transfers_out_this_round = db.Column(
+        "transfers_out_this_round", db.Integer())
     minutes = db.Column("minutes", db.Integer())
     goals_conceded = db.Column("goals_conceded", db.Integer())
     own_goals = db.Column("own_goals", db.Integer())
@@ -50,8 +53,9 @@ class Player_stats(db.Model):
     takes_corners = db.Column("takes_corners", db.Integer())
     takes_free_kicks = db.Column("takes_free_kicks", db.Integer())
     takes_penalties = db.Column("takes_penalties", db.Integer())
+    predicted_points = db.Column("predicted_points", db.Integer())
 
-    def __init__(self, player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties ):
+    def __init__(self, player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties):
         self.player_id = player_id
         self.name = name
         self.code = code
@@ -85,9 +89,11 @@ class Player_stats(db.Model):
         self.takes_corners = takes_corners
         self.takes_free_kicks = takes_free_kicks
         self.takes_penalties = takes_penalties
+        self.predicted_points = None
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -100,22 +106,22 @@ class Users(db.Model):
         self.password = password
         self.user_id = None
 
-    
-
-   
 
 def fetch_all_stats():
-    resp = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
+    resp = requests.get(
+        "https://fantasy.premierleague.com/api/bootstrap-static/")
     data = resp.json()
     for p in data["elements"]:
-        response = requests.get(f"https://fantasy.premierleague.com/api/element-summary/{p['id']}/")
+        response = requests.get(
+            f"https://fantasy.premierleague.com/api/element-summary/{p['id']}/")
         data = response.json()
         if len(data["history"]) > 0:
             cost = float(data["history"][-1]["value"])/10
         else:
             cost = 0
-    
-        teams =["Arsenal F.C.", "Aston Villa F.C."," A.F.C. Bournemouth","Brentford F.C.", "Brighton & Hove Albion F.C.", "Chelsea F.C.", "Crystal Palace F.C.", "Everton F.C.", "Fulham F.C.", "Leicester City F.C.", "Leeds United", "Liverpool F.C.", "Manchester City F.C.", "Manchester United F.C.", "Newcastle United F.C.", "Nottingham Forest F.C.", "Southampton F.C.","Tottenham Hotspur F.C.","West Ham United F.C.","Wolverhampton Wanderers F.C."   ]
+
+        teams = ["Arsenal F.C.", "Aston Villa F.C.", " A.F.C. Bournemouth", "Brentford F.C.", "Brighton & Hove Albion F.C.", "Chelsea F.C.", "Crystal Palace F.C.", "Everton F.C.", "Fulham F.C.", "Leicester City F.C.", "Leeds United",
+                 "Liverpool F.C.", "Manchester City F.C.", "Manchester United F.C.", "Newcastle United F.C.", "Nottingham Forest F.C.", "Southampton F.C.", "Tottenham Hotspur F.C.", "West Ham United F.C.", "Wolverhampton Wanderers F.C."]
 
         player_id = p["id"]
         name = p["first_name"] + " " + p["second_name"]
@@ -134,7 +140,7 @@ def fetch_all_stats():
         chance_of_playing = p["chance_of_playing_this_round"]
         points_per_game = p["points_per_game"]
         selected_by_percentage = p["selected_by_percent"]
-        team = teams[p["team"]-1]     
+        team = teams[p["team"]-1]
         total_points = p["total_points"]
         transfers_in = p["transfers_in"]
         transfers_out = p["transfers_out"]
@@ -153,58 +159,67 @@ def fetch_all_stats():
         creativity = p["creativity"]
         threat = p["threat"]
         ict_index = p["ict_index"]
-        takes_corners = p["corners_and_indirect_freekicks_order"] 
-        takes_free_kicks = p["direct_freekicks_order"] 
+        takes_corners = p["corners_and_indirect_freekicks_order"]
+        takes_free_kicks = p["direct_freekicks_order"]
         takes_penalties = p["penalties_order"]
 
-        player = Player_stats(player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
+        player = Player_stats(player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round,
+                              transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
 
         db.session.add(player)
         db.session.commit()
+
 
 def sign_up(username, password):
     user = Users(username, password)
     db.session.add(user)
     db.session.commit()
 
+
 with app.app_context():
     db.create_all()
     # fetch_all_stats()
+
 
 @app.route('/')
 def hello():
     return render_template("home.html")
 
+
 @app.route('/allstats')
 def get_all_stats():
     data = Player_stats.query.all()
-    list =[]
+    list = []
     for p in data:
         del p.__dict__["_sa_instance_state"]
         list.append(p.__dict__)
     return jsonify(list)
+
 
 @app.route('/stats/<str>')
 def get_player_stats(str):
-    data = Player_stats.query.filter_by(name = str)
-    list =[]
+    data = Player_stats.query.filter_by(name=str)
+    list = []
     for p in data:
         del p.__dict__["_sa_instance_state"]
         list.append(p.__dict__)
     return jsonify(list)
 
+
 @app.route('/teams/<str>')
 def get_players_by_team(str):
-    data = Player_stats.query.filter_by(team = str)
-    list =[]
+    data = Player_stats.query.filter_by(team=str)
+    list = []
     for p in data:
         del p.__dict__["_sa_instance_state"]
         list.append(p.__dict__)
     return jsonify(list)
+
 
 @app.route('/getuserteam', methods=["POST"])
 def get_user_team():
     data = request.get_json(force=True)
+
     async def my_team():
         async with aiohttp.ClientSession() as session:
             fpl = FPL(session)
@@ -218,10 +233,11 @@ def get_user_team():
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     return jsonify(asyncio.run(my_team()))
 
+
 @app.route('/userplayer/<id>')
 def get_player_info(id):
-    data = Player_stats.query.filter_by(player_id = id)
-    list =[]
+    data = Player_stats.query.filter_by(player_id=id)
+    list = []
     for p in data:
         del p.__dict__["_sa_instance_state"]
         list.append(p.__dict__)
@@ -234,8 +250,11 @@ def predictions():
     if request.method == "GET":
         return jsonify(request_data)
     elif request.method == "POST":
-        #put in db
-        
+        for players in request_data:
+            Player_stats.query.filter_by(player_id=players["id"]).update(
+                predicted_points=players["predicted_points"])
+            db.session.commit()
+
 
 @app.route('/signup', methods=['POST'])
 def get_details():
@@ -243,7 +262,6 @@ def get_details():
     sign_up(data["username"], data["password"])
     details = {"username": data["username"], "password": data["password"]}
     return details
-
 
 
 if __name__ == "__main__":

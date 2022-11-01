@@ -254,6 +254,7 @@ def predictions():
             Player_stats.query.filter_by(player_id=players["id"]).update(
                 predicted_points=players["predicted_points"])
             db.session.commit()
+        return 201
 
 
 @app.route('/signup', methods=['POST'])

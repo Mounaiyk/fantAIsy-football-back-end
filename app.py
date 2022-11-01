@@ -249,11 +249,17 @@ def predictions():
     if request.method == "GET":
         return jsonify("200")
     else: 
-        request_data = request.get_json(force=True)
-        print(request_data["predictions_with_names"])
-        for players in request_data["predictions_with_names"]:
-            Player_stats.query.filter_by(player_id=players["id"]).update(dict(predicted_points=players["predicted_points"]))
-            db.session.commit()
+        print("hello")
+        # request_data = request.get_json(force=True)
+        # print(request_data)
+        print(json.loads(request.data.decode("utf-8")))
+        player = json.loads(request.data.decode("utf-8"))
+        # print(type(request.data.decode("utf-8")))
+        # predictions_string = jsonify(request.data.decode("utf-8"))
+        # print(type(predictions_string))
+        # print(predictions_string.data)
+        Player_stats.query.filter_by(player_id=player["id"]).update(dict(predicted_points=player["predicted_points"]))
+        db.session.commit()
     return jsonify("201")
 
 

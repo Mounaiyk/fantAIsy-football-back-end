@@ -208,6 +208,24 @@ def get_player_info(id):
         list.append(p.__dict__)
     return jsonify(list)
 
+@app.route('/predictions', methods=["GET", "POST", "PATCH"])
+def predictions():
+    request_data = request.get_json(silent=False, force=True)
+    if request.method == "GET":
+        return jsonify(request_data)
+    elif request.method == "POST":
+        #put in db
+        
+
+
+        
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

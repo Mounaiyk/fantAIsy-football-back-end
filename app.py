@@ -227,12 +227,23 @@ def get_player_info(id):
         list.append(p.__dict__)
     return jsonify(list)
 
+
+@app.route('/predictions', methods=["GET", "POST", "PATCH"])
+def predictions():
+    request_data = request.get_json(silent=False, force=True)
+    if request.method == "GET":
+        return jsonify(request_data)
+    elif request.method == "POST":
+        #put in db
+        
+
 @app.route('/signup', methods=['POST'])
 def get_details():
     data = request.get_json(force=True)
     sign_up(data["username"], data["password"])
     details = {"username": data["username"], "password": data["password"]}
     return details
+
 
 
 if __name__ == "__main__":

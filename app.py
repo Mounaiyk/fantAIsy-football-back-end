@@ -10,7 +10,7 @@ import asyncio
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///player_stats.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fpl.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 CORS(app)
@@ -88,6 +88,20 @@ class Player_stats(db.Model):
 
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column("username", db.String())
+    password = db.Column("password", db.String())
+    user_id = db.Column("user_id", db.Integer())
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.user_id = None
+
+    
+
    
 
 def fetch_all_stats():
@@ -147,6 +161,11 @@ def fetch_all_stats():
 
         db.session.add(player)
         db.session.commit()
+
+def sign_up(username, password):
+    user = Users(username, password)
+    db.session.add(user)
+    db.session.commit()
 
 with app.app_context():
     db.create_all()
@@ -208,6 +227,7 @@ def get_player_info(id):
         list.append(p.__dict__)
     return jsonify(list)
 
+
 @app.route('/predictions', methods=["GET", "POST", "PATCH"])
 def predictions():
     request_data = request.get_json(silent=False, force=True)
@@ -217,13 +237,12 @@ def predictions():
         #put in db
         
 
-
-        
-
-
-
-
-
+@app.route('/signup', methods=['POST'])
+def get_details():
+    data = request.get_json(force=True)
+    sign_up(data["username"], data["password"])
+    details = {"username": data["username"], "password": data["password"]}
+    return details
 
 
 

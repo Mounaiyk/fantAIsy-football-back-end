@@ -12,6 +12,7 @@ import uuid
 import jwt
 import datetime
 from functools import wraps
+import nest_asyncio
 
 
 app = Flask(__name__)
@@ -325,7 +326,7 @@ def get_user_team():
         for player in team[data["gameweek"]]:
             players.append(player["element"])
         return players
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    nest_asyncio.apply()
     return jsonify(asyncio.run(my_team()))
 
 

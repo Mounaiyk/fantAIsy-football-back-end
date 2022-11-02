@@ -326,6 +326,8 @@ def get_user_team():
         for player in team[data["gameweek"]]:
             players.append(player["element"])
         return players
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     nest_asyncio.apply()
     return jsonify(asyncio.run(my_team()))
 

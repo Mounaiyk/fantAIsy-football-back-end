@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect
+from flask import Flask, request, jsonify, render_template, redirect, make_response
 from flask_cors import CORS
 from werkzeug import exceptions
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -15,6 +15,7 @@ from functools import wraps
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY']='fb41f6f1cdaa52350c232d2b95aadcb8'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///fpl.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -131,11 +132,71 @@ class Users(db.Model):
     password = db.Column("password", db.String())
     user_id = db.Column("user_id", db.Integer())
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, user_id):
         self.username = username
         self.password = password
-        self.user_id = None
+        self.user_id = user_id
 
+# Auth and Auth 
+def token_required(f):
+   @wraps(f)
+   def decorator(*args, **kwargs):
+       token = None
+       if 'x-access-tokens' in request.headers:
+           token = request.headers['x-access-tokens']
+ 
+       if not token:
+           return jsonify({'message': 'a valid token is missing'})
+       try:
+           data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+           current_user = Users.query.filter_by(user_id=data['user_id']).first()
+       except:
+           return jsonify({'message': 'token is invalid'})
+ 
+       return f(current_user, *args, **kwargs)
+   return decorator
+
+
+@app.route('/register', methods=['POST'])
+def signup_user(): 
+   data = request.get_json(force=True)
+   print('type',type(data))
+   hashed_password = generate_password_hash(data['password'], method='sha256')
+ 
+   new_user = Users(user_id=data['user_id'], username=data['username'], password=hashed_password)
+   db.session.add(new_user) 
+   db.session.commit()   
+   return jsonify({'message': 'registered successfully'})
+
+@app.route('/login', methods=['POST']) 
+def login_user():
+   auth = request.authorization  
+   print(auth)
+   if not auth or not auth.username or not auth.password: 
+       return make_response('could not verify', 401, {'Authentication': 'login required"'})   
+ 
+   user = Users.query.filter_by(username=auth.username).first()  
+   if check_password_hash(user.password, auth.password):
+       token = jwt.encode({'user_id' : user.user_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=45)}, app.config['SECRET_KEY'], "HS256")
+ 
+       return jsonify({'token' : token})
+ 
+   return make_response('could not verify',  401, {'Authentication': '"login required"'})
+
+@app.route('/users', methods=['GET'])
+def get_all_users(): 
+ 
+   users = Users.query.all()
+   result = []  
+   for user in users:  
+       user_data = {}  
+       user_data['user_id'] = user.public_id 
+       user_data['username'] = user.username
+       user_data['password'] = user.password
+      
+     
+       result.append(user_data)  
+   return jsonify({'users': result})
 
 def fetch_all_stats():
     resp = requests.get(
@@ -287,13 +348,8 @@ def predictions():
     return jsonify("201")
 
 
-@app.route('/signup', methods=['POST'])
-def get_details():
-    data = request.get_json(force=True)
-    sign_up(data["username"], data["password"])
-    details = {"username": data["username"], "password": data["password"]}
-    return details
+
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=5000)

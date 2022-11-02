@@ -17,6 +17,7 @@ pyjwt = "*"
 datetime = "*"
 uuid = "*"
 pytest-cov = "*"
+nest-asyncio = "*"
 
 [dev-packages]
 pytest = "*"

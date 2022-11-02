@@ -8,6 +8,7 @@ import json
 from fpl import FPL
 import aiohttp
 import asyncio
+import nest_asyncio
 import uuid
 import jwt
 import datetime
@@ -221,7 +222,7 @@ def fetch_all_stats():
         if p["element_type"] == 4:
             position = "FW"
         elif p["element_type"] == 3:
-            position = "MD"
+            position = "MF"
         elif p["element_type"] == 2:
             position = "DF"
         else:
@@ -325,7 +326,7 @@ def get_user_team():
         for player in team[data["gameweek"]]:
             players.append(player["element"])
         return players
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    nest_asyncio.apply()
     return jsonify(asyncio.run(my_team()))
 
 

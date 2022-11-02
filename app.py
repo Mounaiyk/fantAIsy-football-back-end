@@ -1,15 +1,21 @@
 from flask import Flask, request, jsonify, render_template, redirect
 from flask_cors import CORS
 from werkzeug import exceptions
+from werkzeug.security import generate_password_hash,check_password_hash
 import requests
 from flask_sqlalchemy import SQLAlchemy
 import json
 from fpl import FPL
 import aiohttp
 import asyncio
+import uuid
+import jwt
+import datetime
+from functools import wraps
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY']='e9635c332c656a0768c8c43312db1a72'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///player_stats.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -189,7 +195,6 @@ def get_user_team():
     async def my_team():
         async with aiohttp.ClientSession() as session:
             fpl = FPL(session)
-            # login_output = await fpl.login(data["email"], data["password"])
             user = await fpl.get_user(data["userID"])
             team = await user.get_picks(data["gameweek"])
         players = []

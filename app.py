@@ -24,7 +24,9 @@ class Player_stats(db.Model):
     cost = db.Column("cost", db.Float())
     position = db.Column("position", db.String())
     goals = db.Column("goals", db.Integer())
+    average_goals_per_90 = db.Column("average_goals_per_90", db.Integer())
     assists = db.Column("assists", db.Integer())
+    average_assists_per_90 = db.Column("average_assists_per_90", db.Integer())
     clean_sheets = db.Column("clean_sheets", db.Integer())
     chance_of_playing = db.Column("chance_of_playing", db.Integer())
     points_per_game = db.Column("points_per_game", db.Integer())
@@ -38,7 +40,9 @@ class Player_stats(db.Model):
     transfers_out_this_round = db.Column(
         "transfers_out_this_round", db.Integer())
     minutes = db.Column("minutes", db.Integer())
+    average_mins = db.Column("average_mins", db.Integer())
     goals_conceded = db.Column("goals_conceded", db.Integer())
+    average_goals_conceded_per_90 = db.Column("average_goals_conceded_per_90", db.Integer())
     own_goals = db.Column("own_goals", db.Integer())
     penalties_saved = db.Column("penalties_saved", db.Integer())
     penalties_missed = db.Column("penalties_missed", db.Integer())
@@ -47,15 +51,19 @@ class Player_stats(db.Model):
     bonus_points = db.Column("bonus_points", db.Integer())
     saves = db.Column("saves", db.Integer())
     influence = db.Column("influence", db.Integer())
+    average_influence_per_90 = db.Column("average_influence_per_90", db.Integer())
     creativity = db.Column("creativity", db.Integer())
+    average_creativity_per_90 = db.Column("average_creativity_per_90", db.Integer())
     threat = db.Column("threat", db.Integer())
+    average_threat_per_90 = db.Column("average_threat_per_90", db.Integer())
     ict_index = db.Column("ict_index", db.Integer())
+    average_ict_per_90 = db.Column("average_ict_per_90", db.Integer())
     takes_corners = db.Column("takes_corners", db.Integer())
     takes_free_kicks = db.Column("takes_free_kicks", db.Integer())
     takes_penalties = db.Column("takes_penalties", db.Integer())
     predicted_points = db.Column("predicted_points", db.Integer())
 
-    def __init__(self, player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties):
+    def __init__(self, player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round, transfers_out_this_round, minutes, average_minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties):
         self.player_id = player_id
         self.name = name
         self.code = code
@@ -90,6 +98,23 @@ class Player_stats(db.Model):
         self.takes_free_kicks = takes_free_kicks
         self.takes_penalties = takes_penalties
         self.predicted_points = None
+        self.average_mins = average_minutes
+        if minutes != 0:
+            self.average_goals_per_90 = round((goals/minutes)*90,1)
+            self.average_assists_per_90 = round((assists/minutes)*90,1)
+            self.average_goals_conceded_per_90 = round((goals_conceded/minutes)*90,1)
+            self.average_ict_per_90 = round((float(ict_index)/minutes)*90,1)
+            self.average_influence_per_90 = round((float(influence)/minutes)*90,1)
+            self.average_creativity_per_90 = round((float(creativity)/minutes)*90,1)
+            self.average_threat_per_90 = round((float(threat)/minutes)*90,1)
+        else:
+            self.average_goals_per_90 = 0
+            self.average_assists_per_90 = 0
+            self.average_goals_conceded_per_90 = 0
+            self.average_ict_per_90 = 0
+            self.average_influence_per_90 = 0
+            self.average_creativity_per_90 = 0
+            self.average_threat_per_90 = 0
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -115,6 +140,7 @@ def fetch_all_stats():
         response = requests.get(
             f"https://fantasy.premierleague.com/api/element-summary/{p['id']}/")
         data = response.json()
+        games = len(data["history"])
         if len(data["history"]) > 0:
             cost = float(data["history"][-1]["value"])/10
         else:
@@ -147,6 +173,10 @@ def fetch_all_stats():
         transfers_in_this_round = p["transfers_in_event"]
         transfers_out_this_round = p["transfers_out_event"]
         minutes = p["minutes"]
+        if games > 0:
+            average_minutes = round(minutes/games,1)
+        else: 
+            average_minutes = 0
         goals_conceded = p["goals_conceded"]
         own_goals = p["own_goals"]
         penalties_saved = p["penalties_saved"]
@@ -164,7 +194,7 @@ def fetch_all_stats():
         takes_penalties = p["penalties_order"]
 
         player = Player_stats(player_id, name, code, cost, position, goals, assists, clean_sheets, chance_of_playing, points_per_game, selected_by_percentage, team, total_points, transfers_in, transfers_out, transfers_in_this_round,
-                              transfers_out_this_round, minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
+                              transfers_out_this_round, minutes, average_minutes, goals_conceded, own_goals, penalties_saved, penalties_missed, yellow_cards, red_cards, bonus_points, saves, influence, creativity, threat, ict_index, takes_corners, takes_free_kicks, takes_penalties)
 
         db.session.add(player)
         db.session.commit()

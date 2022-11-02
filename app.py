@@ -151,18 +151,18 @@ def fetch_all_stats():
         else:
             cost = 0
 
-        teams = ["Arsenal F.C.", "Aston Villa F.C.", " A.F.C. Bournemouth", "Brentford F.C.", "Brighton & Hove Albion F.C.", "Chelsea F.C.", "Crystal Palace F.C.", "Everton F.C.", "Fulham F.C.", "Leicester City F.C.", "Leeds United",
+        teams = ["Arsenal F.C.", "Aston Villa F.C.", "A.F.C. Bournemouth", "Brentford F.C.", "Brighton & Hove Albion F.C.", "Chelsea F.C.", "Crystal Palace F.C.", "Everton F.C.", "Fulham F.C.", "Leicester City F.C.", "Leeds United",
                  "Liverpool F.C.", "Manchester City F.C.", "Manchester United F.C.", "Newcastle United F.C.", "Nottingham Forest F.C.", "Southampton F.C.", "Tottenham Hotspur F.C.", "West Ham United F.C.", "Wolverhampton Wanderers F.C."]
 
         player_id = p["id"]
         name = p["first_name"] + " " + p["second_name"]
         code = p["code"]
         if p["element_type"] == 4:
-            position = "ATK"
+            position = "FW"
         elif p["element_type"] == 3:
-            position = "MID"
+            position = "MD"
         elif p["element_type"] == 2:
-            position = "DEF"
+            position = "DF"
         else:
             position = "GK"
         goals = p["goals_scored"]
